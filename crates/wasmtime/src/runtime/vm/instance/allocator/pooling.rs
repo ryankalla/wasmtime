@@ -181,7 +181,7 @@ impl Default for InstanceLimits {
             table_elements: 20_000,
             max_memories_per_module: 1,
             #[cfg(target_pointer_width = "64")]
-            max_memory_size: 1 << 32, // 4G,
+            max_memory_size: 21474836480, // 20GiB // 1 << 32, // 4G,  
             #[cfg(target_pointer_width = "32")]
             max_memory_size: 10 << 20, // 10 MiB
             #[cfg(feature = "gc")]

@@ -240,7 +240,7 @@ impl Tunables {
             // value. SpiderMonkey found, for example, that in a large corpus of
             // wasm modules 20MiB was the maximum offset so this is the
             // power-of-two-rounded up from that and matches SpiderMonkey.
-            memory_reservation: 1 << 32,
+            memory_reservation: 21474836480, // 1 << 32,
             memory_guard_size: 32 << 20,
 
             // We've got lots of address space on 64-bit so use a larger

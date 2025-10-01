@@ -90,14 +90,14 @@ pub struct ModuleTranslation<'data> {
     pub data_align: Option<u64>,
 
     /// Total size of all data pushed onto `data` so far.
-    total_data: u32,
+    total_data: usize,
 
     /// List of passive element segments found in this module which will get
     /// concatenated for the final artifact.
     pub passive_data: Vec<&'data [u8]>,
 
     /// Total size of all passive data pushed into `passive_data` so far.
-    total_passive_data: u32,
+    total_passive_data: usize,
 
     /// When we're parsing the code section this will be incremented so we know
     /// which function is currently being defined.
@@ -625,19 +625,12 @@ impl<'a, 'data> ModuleEnvironment<'a, 'data> {
                         data,
                         range: _,
                     } = entry?;
-                    let mk_range = |total: &mut u32| -> Result<_, WasmError> {
-                        let range = u32::try_from(data.len())
-                            .ok()
-                            .and_then(|size| {
-                                let start = *total;
-                                let end = start.checked_add(size)?;
-                                Some(start..end)
-                            })
-                            .ok_or_else(|| {
-                                WasmError::Unsupported(format!(
-                                    "more than 4 gigabytes of data in wasm module",
-                                ))
-                            })?;
+                    let mk_range = |total: &mut usize| -> Result<_, WasmError> {
+                        let start = *total;
+                        let end = start
+                            .checked_add(data.len())
+                            .ok_or_else(|| WasmError::Unsupported("data size too large".into()))?;
+                        let range = start..end;
                         *total += range.end - range.start;
                         Ok(range)
                     };
@@ -1017,7 +1010,7 @@ impl ModuleTranslation<'_> {
                     return false;
                 };
                 let info = &mut self.info[memory];
-                let data_len = u64::from(init.data.end - init.data.start);
+                let data_len = (init.data.end - init.data.start) as u64;
                 if data_len > 0 {
                     info.data_size += data_len;
                     info.min_addr = info.min_addr.min(init.offset);
@@ -1084,7 +1077,7 @@ impl ModuleTranslation<'_> {
         // it's converted to a single initializer.
         let data = mem::replace(&mut self.data, Vec::new());
         let mut map = PrimaryMap::with_capacity(info.len());
-        let mut module_data_size = 0u32;
+        let mut module_data_size = 0;
         for (memory, info) in info.iter() {
             // Create the in-memory `image` which is the initialized contents of
             // this linear memory.
@@ -1158,7 +1151,7 @@ impl ModuleTranslation<'_> {
             // within the final data segment we'll emit to an ELF image, which
             // is the concatenation of `self.data`, so here it's the size of
             // the section-so-far plus the current segment we're appending.
-            let len = u32::try_from(len).unwrap();
+            let len = len as usize;
             let init = if len > 0 {
                 Some(StaticMemoryInitializer {
                     offset,

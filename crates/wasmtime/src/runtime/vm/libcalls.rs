@@ -121,7 +121,7 @@ pub mod raw {
                     $(#[cfg($attr)])?
                     unsafe {
                         Instance::enter_host_from_wasm(vmctx, |store, instance| {
-                            super::$name(store, instance, $($pname),*)
+                            super::$name(store, instance, $($pname.try_into().unwrap()),*)
                         })
                     }
                     $(
@@ -550,7 +550,7 @@ fn memory_init(
     data_index: u32,
     dst: u64,
     src: u32,
-    len: u32,
+    len: usize,
 ) -> Result<(), Trap> {
     let memory_index = MemoryIndex::from_u32(memory_index);
     let data_index = DataIndex::from_u32(data_index);

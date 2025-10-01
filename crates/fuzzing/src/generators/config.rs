@@ -402,7 +402,7 @@ impl Config {
             // supported when bounds checks are elided.
             let memory_config = if pcc {
                 MemoryConfig {
-                    memory_reservation: Some(4 << 30), // 4 GiB
+                    memory_reservation: 21474836480, // Some(4 << 30), // 4 GiB
                     memory_guard_size: Some(2 << 30),  // 2 GiB
                     memory_reservation_for_growth: Some(0),
                     guard_before_linear_memory: false,
