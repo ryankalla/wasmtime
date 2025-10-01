@@ -1077,7 +1077,7 @@ impl Instance {
     }
 
     /// Get the internal storage range of a particular Wasm data segment.
-    pub(crate) fn wasm_data_range(&self, index: DataIndex) -> Range<u32> {
+    pub(crate) fn wasm_data_range(&self, index: DataIndex) -> Range<usize> {
         match self.env_module().passive_data_map.get(&index) {
             Some(range) if !self.dropped_data.contains(index) => range.clone(),
             _ => 0..0,
@@ -1086,10 +1086,8 @@ impl Instance {
 
     /// Given an internal storage range of a Wasm data segment (or subset of a
     /// Wasm data segment), get the data's raw bytes.
-    pub(crate) fn wasm_data(&self, range: Range<u32>) -> &[u8] {
-        let start = usize::try_from(range.start).unwrap();
-        let end = usize::try_from(range.end).unwrap();
-        &self.runtime_info.wasm_data()[start..end]
+    pub(crate) fn wasm_data(&self, range: Range<usize>) -> &[u8] {
+        &self.runtime_info.wasm_data()[range]
     }
 
     /// Performs the `memory.init` operation.
@@ -1105,7 +1103,7 @@ impl Instance {
         data_index: DataIndex,
         dst: u64,
         src: u32,
-        len: u32,
+        len: usize,
     ) -> Result<(), Trap> {
         let range = self.wasm_data_range(data_index);
         self.memory_init_segment(memory_index, range, dst, src, len)
@@ -1114,18 +1112,17 @@ impl Instance {
     pub(crate) fn memory_init_segment(
         self: Pin<&mut Self>,
         memory_index: MemoryIndex,
-        range: Range<u32>,
+        range: Range<usize>,
         dst: u64,
         src: u32,
-        len: u32,
+        len: usize,
     ) -> Result<(), Trap> {
         // https://webassembly.github.io/bulk-memory-operations/core/exec/instructions.html#exec-memory-init
 
         let memory = self.get_memory(memory_index);
         let data = self.wasm_data(range);
-        let dst = self.validate_inbounds(memory.current_length(), dst, len.into())?;
-        let src = self.validate_inbounds(data.len(), src.into(), len.into())?;
-        let len = len as usize;
+        let dst = self.validate_inbounds(memory.current_length(), dst, len as u64)?;
+        let src = self.validate_inbounds(data.len(), src.into(), len as u64)?;
 
         unsafe {
             let src_start = data.as_ptr().add(src);

@@ -328,11 +328,11 @@ wit-bindgen = { version = "0.46.0", default-features = false }
 wit-bindgen-rust-macro = { version = "0.46.0", default-features = false }
 
 # wasm-tools family:
-wasmparser = { version = "0.239.0", default-features = false, features = ['simd'] }
+wasmparser = { git = "https://github.com/ryankalla/wasm-tools.git" }
 wat = "1.239.0"
 wast = "239.0.0"
 wasmprinter = "0.239.0"
-wasm-encoder = "0.239.0"
+wasm-encoder = { git = "https://github.com/ryankalla/wasm-tools.git" }
 wasm-smith = "0.239.0"
 wasm-mutate = "0.239.0"
 wit-parser = "0.239.0"

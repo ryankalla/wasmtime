@@ -174,7 +174,7 @@ impl<'a> ObjectBuilder<'a> {
         // `translation.data` list concatenated which is now present in the data
         // segment that's appended to the object. Increase the offsets by
         // `self.data_size` to account for any previously added module.
-        let data_offset = u32::try_from(data_offset).unwrap();
+        let data_offset = data_offset as usize;
         match &mut module.memory_initialization {
             MemoryInitialization::Segmented(list) => {
                 for segment in list {
@@ -196,7 +196,7 @@ impl<'a> ObjectBuilder<'a> {
         // `translation.passive_data` which was appended to the data segment
         // of this object, after active data in `translation.data`. Update the
         // offsets to account prior modules added in addition to active data.
-        let data_offset = data_offset + u32::try_from(total_data_len).unwrap();
+        let data_offset = data_offset + total_data_len;
         for (_, range) in module.passive_data_map.iter_mut() {
             range.start = range.start.checked_add(data_offset).unwrap();
             range.end = range.end.checked_add(data_offset).unwrap();

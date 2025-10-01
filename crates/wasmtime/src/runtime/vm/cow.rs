@@ -201,7 +201,7 @@ impl ModuleMemoryImages {
                 }
             };
 
-            let data_range = init.data.start as usize..init.data.end as usize;
+            let data_range = init.data.start..init.data.end;
             if module.memories[memory_index]
                 .minimum_byte_size()
                 .map_or(false, |mem_initial_len| {

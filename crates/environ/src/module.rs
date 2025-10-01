@@ -18,7 +18,7 @@ pub struct MemoryInitializer {
     ///
     /// This range indexes into a separately stored data section which will be
     /// provided with the compiled module's code as well.
-    pub data: Range<u32>,
+    pub data: Range<usize>,
 }
 
 /// Similar to the above `MemoryInitializer` but only used when memory
@@ -30,7 +30,7 @@ pub struct StaticMemoryInitializer {
 
     /// The range of data to write at `offset`, where these indices are indexes
     /// into the compiled wasm module's data section.
-    pub data: Range<u32>,
+    pub data: Range<usize>,
 }
 
 /// The type of WebAssembly linear memory initialization to use for a module.
@@ -319,7 +319,7 @@ pub struct Module {
     pub passive_elements_map: BTreeMap<ElemIndex, usize>,
 
     /// The map from passive data index (data segment index space) to index in `passive_data`.
-    pub passive_data_map: BTreeMap<DataIndex, Range<u32>>,
+    pub passive_data_map: BTreeMap<DataIndex, Range<usize>>,
 
     /// Types declared in the wasm module.
     pub types: PrimaryMap<TypeIndex, EngineOrModuleTypeIndex>,
